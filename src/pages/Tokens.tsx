@@ -6,7 +6,6 @@ import { motion } from 'framer-motion';
 
 // Configuration
 const PACKAGE_ID = "0xcd4378bfafc0abf1360405548f33bf64c46785886fc7fd9a302a4ad3c8051ebd";
-const REGISTRY_ID = "0x3b8a4a1a1f71cdac2238d511971df09c5dcb4ff4d7078d4319d666aa12914162";
 
 interface Token {
   id: string;

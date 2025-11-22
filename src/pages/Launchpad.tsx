@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { useSignAndExecuteTransaction, useSuiClient } from '@mysten/dapp-kit';
+import { useSignAndExecuteTransaction } from '@mysten/dapp-kit';
 import { Transaction } from '@mysten/sui/transactions';
 import { Upload, Rocket, AlertCircle, CheckCircle2, X } from 'lucide-react';
 import { uploadToWalrus, getWalrusUrl } from "../config/walrus";
@@ -39,7 +39,6 @@ const Toast = ({ message, type, onClose }: { message: string, type: 'success' | 
 
 export default function Launchpad() {
   const { mutate: signAndExecute } = useSignAndExecuteTransaction();
-  const suiClient = useSuiClient();
 
   const [formData, setFormData] = useState({
     name: '',
