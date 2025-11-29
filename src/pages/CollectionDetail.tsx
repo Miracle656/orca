@@ -71,16 +71,21 @@ export function CollectionDetail() {
             // Fetch Manifest
             const manifestUrl = getWalrusUrl(collectionData.baseUri);
             const res = await fetch(manifestUrl);
-            if (!res.ok) throw new Error('Failed to load manifest');
+            if (!res.ok) {
+                if (res.status === 404) {
+                    throw new Error('Collection data has expired on Walrus testnet. The storage period has ended. Please contact the creator to refresh the collection.');
+                }
+                throw new Error(`Failed to load manifest: ${res.status} ${res.statusText}`);
+            }
             const manifest = await res.json();
 
             if (Array.isArray(manifest)) {
                 setImages(manifest);
             }
 
-        } catch (err) {
+        } catch (err: any) {
             console.error('Error fetching collection:', err);
-            setError('Failed to load collection details');
+            setError(err?.message || 'Failed to load collection details');
         } finally {
             setLoading(false);
         }
