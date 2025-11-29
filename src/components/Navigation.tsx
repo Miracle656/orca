@@ -1,13 +1,17 @@
 import { Link, useLocation } from "react-router-dom";
 import { ConnectButton } from '@mysten/dapp-kit';
-import { motion, AnimatePresence } from "framer-motion";
 import { Menu, X } from "lucide-react";
-import { useState } from "react";
+import { useState, useRef } from "react";
+import gsap from "gsap";
+import { useGSAP } from "@gsap/react";
 import orcaMascot from "../assets/orca-mascot.png";
 
 export function Navigation() {
   const location = useLocation();
   const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const logoRef = useRef<HTMLDivElement>(null);
+  const mobileMenuRef = useRef<HTMLDivElement>(null);
+  const containerRef = useRef<HTMLDivElement>(null);
 
   const tabs = [
     { id: '/', label: 'Home' },
@@ -25,25 +29,53 @@ export function Navigation() {
 
   const closeMenu = () => setIsMenuOpen(false);
 
+  useGSAP(() => {
+    // Logo Bounce
+    gsap.to(logoRef.current, {
+      y: -8,
+      duration: 2,
+      repeat: -1,
+      yoyo: true,
+      ease: "sine.inOut"
+    });
+  }, { scope: containerRef });
+
+  useGSAP(() => {
+    if (isMenuOpen) {
+      gsap.to(mobileMenuRef.current, {
+        height: "auto",
+        opacity: 1,
+        duration: 0.3,
+        ease: "power2.out"
+      });
+    } else {
+      gsap.to(mobileMenuRef.current, {
+        height: 0,
+        opacity: 0,
+        duration: 0.2,
+        ease: "power2.in"
+      });
+    }
+  }, { dependencies: [isMenuOpen], scope: containerRef });
+
   return (
-    <nav className="fixed top-0 left-0 right-0 z-50 bg-white border-b-4 border-black">
+    <nav ref={containerRef} className="fixed top-0 left-0 right-0 z-50 bg-white border-b-4 border-black">
       <div className="max-w-7xl mx-auto px-4 md:px-6">
         <div className="flex items-center justify-between h-20 md:h-24">
           {/* Logo */}
           <Link to="/" className="flex items-center gap-2 md:gap-4 group" onClick={closeMenu}>
-            <motion.div
-              animate={{ y: [0, -8, 0] }}
-              transition={{ duration: 4, repeat: Infinity, ease: "easeInOut" }}
+            <div
+              ref={logoRef}
               className="relative"
             >
               <img
                 src={orcaMascot}
                 alt="Orca Mascot"
-                className="w-14 h-14 md:w-16 md:h-16 object-contain drop-shadow-[4px_4px_0px_rgba(0,0,0,1)]"
+                className="w-10 h-10 md:w-16 md:h-16 object-contain drop-shadow-[2px_2px_0px_rgba(0,0,0,1)] md:drop-shadow-[4px_4px_0px_rgba(0,0,0,1)]"
               />
-            </motion.div>
+            </div>
 
-            <span className="text-3xl md:text-5xl font-black text-black appname drop-shadow-[2px_2px_0px_rgba(0,0,0,0.2)]" style={{ WebkitTextStroke: "2px black", color: "white" }}>
+            <span className="text-2xl md:text-5xl font-black text-black appname drop-shadow-[1px_1px_0px_rgba(0,0,0,0.2)] md:drop-shadow-[2px_2px_0px_rgba(0,0,0,0.2)]" style={{ WebkitTextStroke: "1px black", color: "white" }}>
               ORCA
             </span>
           </Link>
@@ -93,33 +125,26 @@ export function Navigation() {
       </div>
 
       {/* Mobile Menu */}
-      <AnimatePresence>
-        {isMenuOpen && (
-          <motion.div
-            initial={{ height: 0, opacity: 0 }}
-            animate={{ height: "auto", opacity: 1 }}
-            exit={{ height: 0, opacity: 0 }}
-            transition={{ duration: 0.2 }}
-            className="lg:hidden border-t-2 border-black bg-white overflow-hidden"
-          >
-            <div className="px-4 py-4 space-y-2">
-              {tabs.map((tab) => (
-                <Link
-                  key={tab.id}
-                  to={tab.id}
-                  onClick={closeMenu}
-                  className={`block w-full px-4 py-3 text-lg font-bold transition-all border-2 border-black ${isActive(tab.id)
-                    ? 'bg-neo-yellow text-black shadow-[4px_4px_0px_0px_rgba(0,0,0,1)]'
-                    : 'bg-white text-black hover:bg-neo-pink hover:shadow-[4px_4px_0px_0px_rgba(0,0,0,1)]'
-                    }`}
-                >
-                  {tab.label}
-                </Link>
-              ))}
-            </div>
-          </motion.div>
-        )}
-      </AnimatePresence>
+      <div
+        ref={mobileMenuRef}
+        className="lg:hidden border-t-2 border-black bg-white overflow-hidden h-0 opacity-0"
+      >
+        <div className="px-4 py-4 space-y-2">
+          {tabs.map((tab) => (
+            <Link
+              key={tab.id}
+              to={tab.id}
+              onClick={closeMenu}
+              className={`block w-full px-4 py-3 text-lg font-bold transition-all border-2 border-black ${isActive(tab.id)
+                ? 'bg-neo-yellow text-black shadow-[4px_4px_0px_0px_rgba(0,0,0,1)]'
+                : 'bg-white text-black hover:bg-neo-pink hover:shadow-[4px_4px_0px_0px_rgba(0,0,0,1)]'
+                }`}
+            >
+              {tab.label}
+            </Link>
+          ))}
+        </div>
+      </div>
     </nav>
   );
 }
